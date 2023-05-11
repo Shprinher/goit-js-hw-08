@@ -5,13 +5,16 @@ const emailInput = form.querySelector('input[name="email"]');
 const messageInput = form.querySelector('textarea[name="message"]');
 const feedbackFormStateKey = 'feedback-form-state';
 
-// Функція для запису стану форми в локальне сховище
-const saveFormState = throttle(() => {
-  const formState = { email: emailInput.value, message: messageInput.value };
+const saveFormState = () => {
+  const email = emailInput.value.trim();
+  const message = messageInput.value.trim();
+  const formState = { email, message };
   localStorage.setItem(feedbackFormStateKey, JSON.stringify(formState));
-}, 500);
+};
 
-// Функція для відновлення стану форми з локального сховища
+const throttledSaveFormState = throttle(saveFormState, 500);
+
+// відновлення стану форми з локального сховища
 const restoreFormState = () => {
   const formState = JSON.parse(localStorage.getItem(feedbackFormStateKey));
   if (formState) {
@@ -20,19 +23,28 @@ const restoreFormState = () => {
   }
 };
 
-// Заповнюємо поля форми при завантаженні сторінки
+
 window.addEventListener('load', restoreFormState);
 
-// Записуємо стан форми в локальне сховище при вводі користувача
-emailInput.addEventListener('input', saveFormState);
-messageInput.addEventListener('input', saveFormState);
 
-// Очищуємо сховище та поля форми при сабміті
+emailInput.addEventListener('input', throttledSaveFormState);
+messageInput.addEventListener('input', throttledSaveFormState);
+
+// Видалення стану форми з локального сховища та полів під час надсилання
+const clearFormState = () => {
+  const email = emailInput.value.trim();
+  const message = messageInput.value.trim();
+  if (email && message) {
+    localStorage.removeItem(feedbackFormStateKey);
+    emailInput.value = '';
+    messageInput.value = '';
+  } else {
+    alert("Всі поля повинні бути заповнені!");
+  }
+};
+
 form.addEventListener('submit', (event) => {
   event.preventDefault();
-  const formState = { email: '', message: '' };
-  localStorage.setItem(feedbackFormStateKey, JSON.stringify(formState));
-  emailInput.value = '';
-  messageInput.value = '';
-  console.log(formState);
+  clearFormState();
 });
+
