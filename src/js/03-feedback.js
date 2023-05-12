@@ -38,6 +38,7 @@ const clearFormState = () => {
     localStorage.removeItem(feedbackFormStateKey);
     emailInput.value = '';
     messageInput.value = '';
+    console.log({ email, message });
   } else {
     alert("Всі поля повинні бути заповнені!");
   }
@@ -47,4 +48,3 @@ form.addEventListener('submit', (event) => {
   event.preventDefault();
   clearFormState();
 });
-
